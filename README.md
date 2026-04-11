@@ -4,6 +4,7 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ZerexaNet/DocFlow)
 
 - 自动将 Markdown 渲染为 HTML
 - 自动生成页面路由
@@ -166,12 +167,13 @@ npm test
 
 ## 部署
 
-本项目是纯静态站点，构建产物为 `dist/`，可直接部署到 Vercel 或 Cloudflare Pages（CF）。
+本项目是纯静态站点，构建产物为 `dist/`，可直接部署到 Vercel、Cloudflare、Netlify 和 GitHub Pages。
 
 ### 一键部署
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ZerexaNet/DocFlow)
 
 ### 部署到 Vercel
 
@@ -218,6 +220,76 @@ wrangler pages project create DocFlow
 npm run build
 wrangler pages deploy dist --project-name DocFlow
 ```
+
+### 部署到 GitHub Pages
+
+建议使用 GitHub Actions 发布 `dist/`，步骤如下：
+
+1. 在仓库里新建文件 `.github/workflows/deploy-pages.yml`。
+2. 写入以下工作流：
+
+```yaml
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build docs
+        run: npm run build
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+3. 在 GitHub 仓库中进入 `Settings -> Pages`。
+4. `Source` 选择 `GitHub Actions`。
+5. 推送到 `main` 分支后，等待工作流完成。
+
+访问地址通常为：
+
+- 用户/组织主页仓库：`https://<username>.github.io/`
+- 项目仓库：`https://<username>.github.io/<repo>/`
+
+注意：当前 DocFlow 模板默认使用根路径资源链接，若使用项目仓库子路径发布，建议配合自定义域名或按需调整路径策略。
 
 ### 部署前自检
 
