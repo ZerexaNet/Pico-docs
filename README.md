@@ -107,6 +107,7 @@ export default {
   siteDescription: "DocFlow是由node开发的静态文档系统",
   docsDir: "docs",
   outDir: "dist",
+  base: process.env.DOCFLOW_BASE || "/",
   nav: [
     { text: "首页", link: "/" },
     { text: "指南", link: "/guide/getting-started/" }
@@ -248,6 +249,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOCFLOW_BASE: /${{ github.event.repository.name }}/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -294,7 +297,10 @@ jobs:
 - 用户/组织主页仓库：`https://<username>.github.io/`
 - 项目仓库：`https://<username>.github.io/<repo>/`
 
-注意：当前 DocFlow 模板默认使用根路径资源链接，若使用项目仓库子路径发布，建议配合自定义域名或按需调整路径策略。
+说明：
+
+- GitHub Pages 项目仓库通常是子路径（如 `/DocFlow/`），上面工作流已通过 `DOCFLOW_BASE` 自动处理。
+- Cloudflare Pages / Netlify / Vercel 默认根路径部署，保持 `DOCFLOW_BASE=/`（或不设置）即可。
 
 ### 部署前自检
 

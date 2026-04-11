@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { parseFrontmatter } from "./frontmatter.mjs";
 import { parseMarkdown } from "./markdown.mjs";
 import { buildNavItems, buildSidebarGroups } from "./navigation.mjs";
+import { withBasePath } from "./base-path.mjs";
 import { outputPathFromRoute, resolveMarkdownLink, routeFromRelativeDocPath } from "./routes.mjs";
 import { ensureDirPath, numericOrder, titleFromSegment, toPosixPath } from "./utils.mjs";
 import { renderPage } from "./template.mjs";
@@ -60,7 +61,7 @@ export async function buildSite(rootDir) {
     const route = routeFromRelativeDocPath(relativePath);
     const { data, content } = parseFrontmatter(rawContent);
     const markdownResult = parseMarkdown(content, {
-      resolveLink: (href) => resolveMarkdownLink(href, relativePath)
+      resolveLink: (href) => withBasePath(resolveMarkdownLink(href, relativePath), config.base)
     });
     const title =
       (typeof data.title === "string" && data.title.trim()) ||
@@ -100,6 +101,7 @@ export async function buildSite(rootDir) {
     const html = renderPage({
       siteName: config.siteName,
       siteDescription: config.siteDescription,
+      base: config.base,
       header: config.header,
       i18n: config.i18n,
       page: doc,

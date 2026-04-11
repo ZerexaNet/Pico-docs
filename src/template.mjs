@@ -1,4 +1,5 @@
 import { escapeHtml } from "./utils.mjs";
+import { normalizeBasePath, withBasePath } from "./base-path.mjs";
 
 const SUPPORTED_HEADER_BACKGROUNDS = new Set(["solid", "transparent", "striped"]);
 
@@ -6,6 +7,7 @@ export function renderPage(payload) {
   const {
     siteName,
     siteDescription,
+    base,
     header,
     i18n,
     page,
@@ -14,6 +16,7 @@ export function renderPage(payload) {
     previousPage,
     nextPage
   } = payload;
+  const basePath = normalizeBasePath(base || "/");
   const pageTitle = `${page.title} | ${siteName}`;
   const displayToc = page.toc.filter((item) => item.level >= 2 && item.level <= 3);
   const headerConfig = normalizeHeaderConfig(siteName, header);
@@ -27,7 +30,9 @@ export function renderPage(payload) {
   const navHtml = navItems
     .map((item) => {
       const activeClass = item.link === page.route ? "nav-link active" : "nav-link";
-      return `<a class="${activeClass}" href="${item.link}">${escapeHtml(item.text)}</a>`;
+      return `<a class="${activeClass}" href="${escapeHtml(withBasePath(item.link, basePath))}">${escapeHtml(
+        item.text
+      )}</a>`;
     })
     .join("");
 
@@ -36,7 +41,9 @@ export function renderPage(payload) {
       const items = group.items
         .map((item) => {
           const activeClass = item.route === page.route ? "sidebar-link active" : "sidebar-link";
-          return `<li><a class="${activeClass}" href="${item.route}">${escapeHtml(item.title)}</a></li>`;
+          return `<li><a class="${activeClass}" href="${escapeHtml(withBasePath(item.route, basePath))}">${escapeHtml(
+            item.title
+          )}</a></li>`;
         })
         .join("");
       return `<section class="sidebar-group"><h2>${escapeHtml(group.title)}</h2><ul>${items}</ul></section>`;
@@ -52,9 +59,9 @@ export function renderPage(payload) {
         .join("")}</ul>`
     : "<p class=\"toc-empty\">当前页面没有可显示的目录。</p>";
 
-  const pagerHtml = renderPager(previousPage, nextPage);
-  const brandHtml = renderBrand(headerConfig.logo, siteName);
-  const rightButtonsHtml = renderRightButtons(headerConfig.rightButtons);
+  const pagerHtml = renderPager(previousPage, nextPage, basePath);
+  const brandHtml = renderBrand(headerConfig.logo, siteName, basePath);
+  const rightButtonsHtml = renderRightButtons(headerConfig.rightButtons, basePath);
   const i18nControlHtml = renderI18nControl(i18nConfig);
   const headerUtilityHtml = renderHeaderUtility(i18nControlHtml, rightButtonsHtml);
   const i18nConfigScript = renderI18nConfigScript(i18nConfig);
@@ -66,12 +73,12 @@ export function renderPage(payload) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="${escapeHtml(siteDescription)}">
     <title>${escapeHtml(pageTitle)}</title>
-    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="${escapeHtml(withBasePath("/assets/style.css", basePath))}">
   </head>
   <body>
     <div class="app">
       <header class="${topbarClassName}">
-        <a class="brand" href="${escapeHtml(headerConfig.logo.link)}">${brandHtml}</a>
+        <a class="brand" href="${escapeHtml(withBasePath(headerConfig.logo.link, basePath))}">${brandHtml}</a>
         <button class="menu-button" type="button" aria-expanded="false" aria-controls="sidebar">导航</button>
         <div class="topbar-right">
           <nav class="top-nav">${navHtml}</nav>
@@ -94,30 +101,34 @@ export function renderPage(payload) {
       </div>
     </div>
     ${i18nConfigScript}
-    <script type="module" src="/assets/app.js"></script>
+    <script type="module" src="${escapeHtml(withBasePath("/assets/app.js", basePath))}"></script>
   </body>
 </html>`;
 }
 
-function renderPager(previousPage, nextPage) {
+function renderPager(previousPage, nextPage, basePath) {
   if (!previousPage && !nextPage) return "";
 
   const previous = previousPage
-    ? `<a class="pager-link" href="${previousPage.route}">上一页：${escapeHtml(previousPage.title)}</a>`
+    ? `<a class="pager-link" href="${escapeHtml(withBasePath(previousPage.route, basePath))}">上一页：${escapeHtml(
+        previousPage.title
+      )}</a>`
     : "<span></span>";
   const next = nextPage
-    ? `<a class="pager-link" href="${nextPage.route}">下一页：${escapeHtml(nextPage.title)}</a>`
+    ? `<a class="pager-link" href="${escapeHtml(withBasePath(nextPage.route, basePath))}">下一页：${escapeHtml(
+        nextPage.title
+      )}</a>`
     : "<span></span>";
 
   return `<nav class="pager">${previous}${next}</nav>`;
 }
 
-function renderBrand(logo, siteName) {
+function renderBrand(logo, siteName, basePath) {
   const text = logo.text || siteName;
   const imageHtml = logo.image
-    ? `<span class="brand-image-wrap"><img class="brand-image" src="${escapeHtml(logo.image)}" alt="${escapeHtml(
-        logo.alt || text
-      )}"></span>`
+    ? `<span class="brand-image-wrap"><img class="brand-image" src="${escapeHtml(
+        withBasePath(logo.image, basePath)
+      )}" alt="${escapeHtml(logo.alt || text)}"></span>`
     : "";
   return `${imageHtml}<span class="brand-text">${escapeHtml(text)}</span>`;
 }
@@ -130,7 +141,7 @@ function renderHeaderUtility(i18nControlHtml, rightButtonsHtml) {
   return `<div class="header-utility">${segments.join("")}</div>`;
 }
 
-function renderRightButtons(buttons) {
+function renderRightButtons(buttons, basePath) {
   const validButtons = buttons.filter((button) => button.text && button.link);
   if (!validButtons.length) return "";
 
@@ -138,7 +149,9 @@ function renderRightButtons(buttons) {
     .map((button) => {
       const className = button.style === "filled" ? "header-action filled" : "header-action";
       const target = button.newTab ? ' target="_blank" rel="noreferrer noopener"' : "";
-      return `<a class="${className}" href="${escapeHtml(button.link)}"${target}>${escapeHtml(button.text)}</a>`;
+      return `<a class="${className}" href="${escapeHtml(withBasePath(button.link, basePath))}"${target}>${escapeHtml(
+        button.text
+      )}</a>`;
     })
     .join("");
 

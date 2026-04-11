@@ -3,7 +3,7 @@ export default {
   siteDescription: "DocFlow是由node开发的静态文档系统",
   docsDir: "docs",
   outDir: "dist",
-  base: "/",
+  base: process.env.DOCFLOW_BASE || "/",
   header: {
     sticky: true,
     background: "solid",

@@ -15,7 +15,7 @@ export default {
   siteDescription: "DocFlow 是由 Node.js 开发的静态文档系统",
   docsDir: "docs",
   outDir: "dist",
-  base: "/",
+  base: process.env.DOCFLOW_BASE || "/",
   header: {
     sticky: true,
     background: "solid",
@@ -42,6 +42,7 @@ export default {
 - `siteDescription`：页面 `meta description`
 - `docsDir`：Markdown 源目录
 - `outDir`：构建输出目录
+- `base`：站点基础路径（GitHub Pages 项目仓库建议 `/<repo>/`，默认 `/`）
 - `nav`：顶部导航
 - `header.sticky`：是否固定 Header
 - `header.background`：Header 背景样式，可选 `solid | transparent | striped`

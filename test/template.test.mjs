@@ -78,3 +78,38 @@ test("renderPage should fallback to default header background", () => {
   assert.match(html, /class="topbar topbar-sticky topbar-bg-solid"/);
   assert.doesNotMatch(html, /data-i18n-switcher/);
 });
+
+test("renderPage should apply custom base path to internal links and assets", () => {
+  const html = renderPage({
+    siteName: "DocFlow 文档",
+    siteDescription: "desc",
+    base: "/DocFlow/",
+    header: {
+      logo: {
+        text: "DocFlow",
+        link: "/",
+        image: "/assets/logo.png",
+        alt: "DocFlow Logo"
+      },
+      rightButtons: [{ text: "开始", link: "/guide/getting-started/" }]
+    },
+    i18n: {
+      enabled: false
+    },
+    page: {
+      title: "Home",
+      route: "/",
+      html: '<p><a href="/guide/getting-started/">Start</a></p>',
+      toc: []
+    },
+    navItems: [{ text: "首页", link: "/" }],
+    sidebarGroups: [{ title: "概览", items: [{ route: "/", title: "首页" }] }],
+    previousPage: null,
+    nextPage: { route: "/guide/getting-started/", title: "快速开始" }
+  });
+
+  assert.match(html, /href="\/DocFlow\/assets\/style\.css"/);
+  assert.match(html, /src="\/DocFlow\/assets\/app\.js"/);
+  assert.match(html, /src="\/DocFlow\/assets\/logo\.png"/);
+  assert.match(html, /href="\/DocFlow\/guide\/getting-started\/"/);
+});

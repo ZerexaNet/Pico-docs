@@ -68,6 +68,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOCFLOW_BASE: /${{ github.event.repository.name }}/
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -104,7 +106,10 @@ jobs:
 - 用户/组织主页仓库：`https://<username>.github.io/`
 - 项目仓库：`https://<username>.github.io/<repo>/`
 
-注意：默认模板使用根路径资源链接，项目仓库子路径发布时建议绑定自定义域名或按需调整路径。
+说明：
+
+- GitHub Pages 项目仓库通常是子路径（如 `/DocFlow/`），上面工作流已通过 `DOCFLOW_BASE` 自动处理。
+- Cloudflare Pages / Netlify / Vercel 默认根路径部署，保持 `DOCFLOW_BASE=/`（或不设置）即可。
 
 ## 使用 CLI（可选）
 
