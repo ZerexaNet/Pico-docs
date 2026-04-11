@@ -2,6 +2,9 @@
 
 一个极简风格的静态文档系统
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+
 - 自动将 Markdown 渲染为 HTML
 - 自动生成页面路由
 - 提供顶部导航、侧边栏文档结构、页面目录
@@ -164,6 +167,11 @@ npm test
 ## 部署
 
 本项目是纯静态站点，构建产物为 `dist/`，可直接部署到 Vercel 或 Cloudflare Pages（CF）。
+
+### 一键部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
 
 ### 部署到 Vercel
 

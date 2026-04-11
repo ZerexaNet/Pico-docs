@@ -7,6 +7,11 @@ order: 5
 
 DocFlow 构建后是纯静态站点，输出目录为 `dist/`，可直接部署到 Vercel 或 Cloudflare Pages。
 
+## 一键部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+
 ## 部署前检查
 
 ```bash

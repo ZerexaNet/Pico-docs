@@ -7,6 +7,9 @@ order: 1
 
 DocFlow 是一个极简、可扩展的静态文档系统，基于 Node.js 构建。
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2FZerexaNet%2FDocFlow)
+
 - 支持 Markdown 自动渲染为 HTML
 - 自动生成路由、侧边栏和页面目录
 - 可配置 Header、导航和按钮
