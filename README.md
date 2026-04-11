@@ -257,7 +257,12 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
       - name: Build docs
         run: npm run build
       - name: Upload GitHub Pages artifact
