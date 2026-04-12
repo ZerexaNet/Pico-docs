@@ -3,7 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseFrontmatter } from "./frontmatter.mjs";
 import { parseMarkdown } from "./markdown.mjs";
-import { buildNavItems, buildSidebarGroups } from "./navigation.mjs";
+import { buildSidebarGroups } from "./navigation.mjs";
 import { withBasePath } from "./base-path.mjs";
 import { outputPathFromRoute, resolveMarkdownLink, routeFromRelativeDocPath } from "./routes.mjs";
 import { ensureDirPath, numericOrder, titleFromSegment, toPosixPath } from "./utils.mjs";
@@ -39,8 +39,7 @@ const DEFAULT_CONFIG = {
       { code: "zh", label: "简体中文" },
       { code: "en", label: "English" }
     ]
-  },
-  nav: []
+  }
 };
 
 export async function buildSite(rootDir) {
@@ -86,7 +85,6 @@ export async function buildSite(rootDir) {
     return a.relativePath.localeCompare(b.relativePath, "zh-Hans-CN");
   });
 
-  const navItems = buildNavItems(config.nav, orderedDocs);
   const sidebarGroups = buildSidebarGroups(orderedDocs);
   const docIndexByRoute = new Map(orderedDocs.map((doc, index) => [doc.route, index]));
 
@@ -105,7 +103,6 @@ export async function buildSite(rootDir) {
       header: config.header,
       i18n: config.i18n,
       page: doc,
-      navItems,
       sidebarGroups,
       previousPage,
       nextPage

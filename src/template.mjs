@@ -11,7 +11,6 @@ export function renderPage(payload) {
     header,
     i18n,
     page,
-    navItems,
     sidebarGroups,
     previousPage,
     nextPage
@@ -26,15 +25,6 @@ export function renderPage(payload) {
     headerConfig.sticky ? "topbar-sticky" : "topbar-static",
     `topbar-bg-${headerConfig.background}`
   ].join(" ");
-
-  const navHtml = navItems
-    .map((item) => {
-      const activeClass = item.link === page.route ? "nav-link active" : "nav-link";
-      return `<a class="${activeClass}" href="${escapeHtml(withBasePath(item.link, basePath))}">${escapeHtml(
-        item.text
-      )}</a>`;
-    })
-    .join("");
 
   const sidebarHtml = sidebarGroups
     .map((group) => {
@@ -64,6 +54,7 @@ export function renderPage(payload) {
   const rightButtonsHtml = renderRightButtons(headerConfig.rightButtons, basePath);
   const i18nControlHtml = renderI18nControl(i18nConfig);
   const headerUtilityHtml = renderHeaderUtility(i18nControlHtml, rightButtonsHtml);
+  const topbarRightHtml = headerUtilityHtml ? `<div class="topbar-right">${headerUtilityHtml}</div>` : "";
   const i18nConfigScript = renderI18nConfigScript(i18nConfig);
 
   return `<!doctype html>
@@ -80,10 +71,7 @@ export function renderPage(payload) {
       <header class="${topbarClassName}">
         <a class="brand" href="${escapeHtml(withBasePath(headerConfig.logo.link, basePath))}">${brandHtml}</a>
         <button class="menu-button" type="button" aria-expanded="false" aria-controls="sidebar">导航</button>
-        <div class="topbar-right">
-          <nav class="top-nav">${navHtml}</nav>
-          ${headerUtilityHtml}
-        </div>
+        ${topbarRightHtml}
       </header>
 
       <div class="layout">

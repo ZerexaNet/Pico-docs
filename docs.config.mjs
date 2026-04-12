@@ -34,12 +34,5 @@ export default {
       { code: "zh", label: "简体中文" },
       { code: "en", label: "English" }
     ]
-  },
-  nav: [
-    { text: "首页", link: "/" },
-    { text: "快速开始", link: "/guide/getting-started/" },
-    { text: "系统配置", link: "/guide/configuration/" },
-    { text: "i18n", link: "/guide/i18n/" },
-    { text: "部署", link: "/guide/deployment/" }
-  ]
+  }
 };

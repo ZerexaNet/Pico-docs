@@ -8,7 +8,7 @@
 
 - 自动将 Markdown 渲染为 HTML
 - 自动生成页面路由
-- 提供顶部导航、侧边栏文档结构、页面目录
+- 提供侧边栏文档结构、页面目录与顶部操作区
 - 全站白色背景，黑色文字与黑色按钮/边框
 
 ## 使用方式
@@ -99,7 +99,7 @@ order: 2
 
 ## 配置
 
-在 `docs.config.mjs` 中配置站点标题、输出目录、导航项和 Header：
+在 `docs.config.mjs` 中配置站点标题、输出目录和 Header：
 
 ```js
 export default {
@@ -108,10 +108,6 @@ export default {
   docsDir: "docs",
   outDir: "dist",
   base: process.env.DOCFLOW_BASE || "/",
-  nav: [
-    { text: "首页", link: "/" },
-    { text: "指南", link: "/guide/getting-started/" }
-  ],
   header: {
     sticky: true,                // 是否固定在顶部
     background: "solid",         // solid | transparent | striped

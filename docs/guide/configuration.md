@@ -28,11 +28,7 @@ export default {
     rightButtons: [
       { text: "GitHub", link: "https://github.com/ZerexaNet/DocFlow", newTab: true }
     ]
-  },
-  nav: [
-    { text: "首页", link: "/" },
-    { text: "快速开始", link: "/guide/getting-started/" }
-  ]
+  }
 };
 ```
 
@@ -43,7 +39,6 @@ export default {
 - `docsDir`：Markdown 源目录
 - `outDir`：构建输出目录
 - `base`：站点基础路径（GitHub Pages 项目仓库建议 `/<repo>/`，默认 `/`）
-- `nav`：顶部导航
 - `header.sticky`：是否固定 Header
 - `header.background`：Header 背景样式，可选 `solid | transparent | striped`
 
