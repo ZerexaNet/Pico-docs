@@ -327,6 +327,29 @@ a {
   font-family: var(--font-mono);
 }
 
+.doc img {
+  max-width: 100%;
+  height: auto;
+}
+
+.doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.doc th,
+.doc td {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  vertical-align: top;
+}
+
+.doc th {
+  background: #f6f6f6;
+  font-weight: 700;
+}
+
 .doc blockquote {
   margin: 1.2rem 0;
   padding: 0.4rem 0 0.4rem 1rem;

@@ -22,7 +22,7 @@ Paragraph with **bold** and [link](./next.md) plus \`inline\`.
   assert.match(html, /<h2 id="section">Section<\/h2>/);
   assert.match(html, /<a href="\/next\/">link<\/a>/);
   assert.match(html, /<code>inline<\/code>/);
-  assert.match(html, /<ul><li>one<\/li><li>two<\/li><\/ul>/);
+  assert.match(html, /<ul>\s*<li>one<\/li>\s*<li>two<\/li>\s*<\/ul>/);
 });
 
 test("parseMarkdown should support admonition blocks", () => {
@@ -56,4 +56,26 @@ test("parseMarkdown should support task list syntax", () => {
   assert.match(html, /<span class="task-list-marker" aria-hidden="true"><\/span>/);
   assert.match(html, /<a href="https:\/\/github\.com\/hekuo5310\/TranforCpp">/);
   assert.match(html, /对基岩版玩家的支持/);
+});
+
+test("parseMarkdown should support image link badge syntax", () => {
+  const markdown =
+    "[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://example.com/repo)";
+  const { html } = parseMarkdown(markdown);
+
+  assert.match(html, /<a href="https:\/\/vercel\.com\/new\/clone\?repository-url=https:\/\/example\.com\/repo">/);
+  assert.match(html, /<img src="https:\/\/vercel\.com\/button" alt="Deploy with Vercel">/);
+});
+
+test("parseMarkdown should support gfm table and strikethrough", () => {
+  const markdown = `| 功能 | 状态 |
+| :--- | ---: |
+| UI | ~~旧版~~ |
+| API | 新版 |`;
+  const { html } = parseMarkdown(markdown);
+
+  assert.match(html, /<table>/);
+  assert.match(html, /<th style="text-align:left">功能<\/th>/);
+  assert.match(html, /<th style="text-align:right">状态<\/th>/);
+  assert.match(html, /<del>旧版<\/del>/);
 });

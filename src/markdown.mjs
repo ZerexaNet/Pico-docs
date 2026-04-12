@@ -84,7 +84,8 @@ export function parseMarkdown(markdown, options = {}) {
     return existing === 0 ? base : `${base}-${next}`;
   }
 
-  for (const line of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
     if (codeBlock) {
       if (/^```/u.test(line.trim())) {
         flushCodeBlock();
@@ -138,6 +139,53 @@ export function parseMarkdown(markdown, options = {}) {
       continue;
     }
 
+    if (isTableHeaderLine(line) && isTableSeparatorLine(lines[index + 1])) {
+      flushParagraph();
+      flushList();
+      flushQuote();
+
+      const headerCells = parseTableCells(line);
+      const alignments = parseTableAlignments(lines[index + 1]);
+      const bodyRows = [];
+      index += 2;
+
+      while (index < lines.length) {
+        const rowLine = lines[index];
+        if (!rowLine || !rowLine.trim() || !rowLine.includes("|")) {
+          break;
+        }
+        bodyRows.push(parseTableCells(rowLine));
+        index += 1;
+      }
+      index -= 1;
+
+      const headerHtml = headerCells
+        .map((cell, cellIndex) => {
+          const align = alignments[cellIndex] || "";
+          const alignAttr = align ? ` style="text-align:${align}"` : "";
+          return `<th${alignAttr}>${parseInline(cell, resolveLink)}</th>`;
+        })
+        .join("");
+      const bodyHtml = bodyRows
+        .map((row) => {
+          const cells = headerCells
+            .map((_, cellIndex) => {
+              const align = alignments[cellIndex] || "";
+              const alignAttr = align ? ` style="text-align:${align}"` : "";
+              const value = row[cellIndex] || "";
+              return `<td${alignAttr}>${parseInline(value, resolveLink)}</td>`;
+            })
+            .join("");
+          return `<tr>${cells}</tr>`;
+        })
+        .join("");
+
+      htmlParts.push(
+        `<table><thead><tr>${headerHtml}</tr></thead>${bodyRows.length ? `<tbody>${bodyHtml}</tbody>` : ""}</table>`
+      );
+      continue;
+    }
+
     const quoteMatch = line.match(/^\s*>\s?(.*)$/u);
     if (quoteMatch) {
       flushParagraph();
@@ -188,34 +236,50 @@ export function parseMarkdown(markdown, options = {}) {
 function stripInlineSyntax(text) {
   return text
     .replace(/`([^`]+)`/gu, "$1")
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/gu, "$1")
     .replace(/\*\*([^*]+)\*\*/gu, "$1")
     .replace(/\*([^*]+)\*/gu, "$1")
     .replace(/__([^_]+)__/gu, "$1")
     .replace(/_([^_]+)_/gu, "$1")
+    .replace(/~~([^~]+)~~/gu, "$1")
     .replace(/\[([^\]]+)\]\(([^)]+)\)/gu, "$1")
     .trim();
 }
 
 function parseInline(text, resolveLink) {
   const codeTokens = [];
+  const imageTokens = [];
   let parsed = text.replace(/`([^`]+)`/gu, (_, code) => {
     const token = `%%CODETOKEN${codeTokens.length}%%`;
     codeTokens.push(`<code>${escapeHtml(code)}</code>`);
     return token;
   });
 
+  parsed = parsed.replace(/!\[([^\]]*)\]\(([^)]+)\)/gu, (_, altText, rawTarget) => {
+    const token = `%%IMGTOKEN${imageTokens.length}%%`;
+    const { href, title } = parseLinkTarget(rawTarget);
+    const resolvedSrc = resolveLink(href);
+    const titleAttr = title ? ` title="${escapeHtml(title)}"` : "";
+    imageTokens.push(`<img src="${escapeHtml(resolvedSrc)}" alt="${escapeHtml(altText)}"${titleAttr}>`);
+    return token;
+  });
+
   parsed = escapeHtml(parsed);
 
   parsed = parsed.replace(/\[([^\]]+)\]\(([^)]+)\)/gu, (_, label, href) => {
-    const link = escapeHtml(resolveLink(href));
-    return `<a href="${link}">${label}</a>`;
+    const { href: linkHref, title } = parseLinkTarget(href);
+    const link = escapeHtml(resolveLink(linkHref));
+    const titleAttr = title ? ` title="${escapeHtml(title)}"` : "";
+    return `<a href="${link}"${titleAttr}>${label}</a>`;
   });
 
+  parsed = parsed.replace(/~~([^~]+)~~/gu, "<del>$1</del>");
   parsed = parsed.replace(/\*\*([^*]+)\*\*/gu, "<strong>$1</strong>");
   parsed = parsed.replace(/__([^_]+)__/gu, "<strong>$1</strong>");
   parsed = parsed.replace(/(^|[^*])\*([^*]+)\*/gu, "$1<em>$2</em>");
   parsed = parsed.replace(/(^|[^_])_([^_]+)_/gu, "$1<em>$2</em>");
 
+  parsed = parsed.replace(/%%IMGTOKEN(\d+)%%/gu, (_, index) => imageTokens[Number(index)] || "");
   parsed = parsed.replace(/%%CODETOKEN(\d+)%%/gu, (_, index) => codeTokens[Number(index)] || "");
 
   return parsed;
@@ -244,4 +308,48 @@ function alertTitleByType(type) {
   if (key === "warning") return "警告";
   if (key === "caution") return "注意";
   return key.toUpperCase();
+}
+
+function parseLinkTarget(rawTarget) {
+  const source = String(rawTarget || "").trim();
+  const titleMatch = source.match(/^(\S+)\s+["'](.+?)["']$/u);
+  if (titleMatch) {
+    return {
+      href: titleMatch[1].trim(),
+      title: titleMatch[2].trim()
+    };
+  }
+
+  return {
+    href: source,
+    title: ""
+  };
+}
+
+function isTableHeaderLine(line) {
+  if (typeof line !== "string") return false;
+  const trimmed = line.trim();
+  return trimmed.includes("|") && parseTableCells(trimmed).length > 1;
+}
+
+function isTableSeparatorLine(line) {
+  if (typeof line !== "string") return false;
+  const cells = parseTableCells(line);
+  if (cells.length < 2) return false;
+  return cells.every((cell) => /^:?-{3,}:?$/u.test(cell.replace(/\s+/gu, "")));
+}
+
+function parseTableCells(line) {
+  const trimmed = String(line || "").trim().replace(/^\|/u, "").replace(/\|$/u, "");
+  return trimmed.split("|").map((cell) => cell.trim());
+}
+
+function parseTableAlignments(separatorLine) {
+  return parseTableCells(separatorLine).map((cell) => {
+    const normalized = cell.replace(/\s+/gu, "");
+    if (/^:-+:$/u.test(normalized)) return "center";
+    if (/^-+:/u.test(normalized)) return "right";
+    if (/^:-+/u.test(normalized)) return "left";
+    return "";
+  });
 }
