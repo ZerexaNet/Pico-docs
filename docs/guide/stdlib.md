@@ -204,7 +204,30 @@ VM 与树遍历解释器并存，当前默认使用解释器。
 ## CLI 用法
 
 ```bash
-pico                    # 启动 REPL
-pico run <文件.pico>    # 运行脚本
-pico build <文件.pico>  # 编译为原生二进制（开发中）
+pico                          # 启动 REPL
+pico run <文件.pico>          # 运行脚本
+pico --strict run <文件.pico> # 严格类型检查模式
+pico build <文件.pico> [输出] # 编译为原生二进制
 ```
+
+---
+
+## 包管理器
+
+包从 GitHub 仓库安装，存放在 `pico_modules/` 目录。
+
+```bash
+pico install ZerexaNet/pico-utils          # 安装最新版
+pico install ZerexaNet/pico-utils@v1.0.0   # 安装指定 tag
+pico remove  pico-utils                    # 移除
+pico list                                  # 列出已安装包
+```
+
+在代码中导入：
+
+```
+导入 pico_modules/pico-utils/utils
+```
+
+> [!WARNING]
+> 包管理器依赖 `git` 命令，需确保 git 已安装并在 PATH 中。

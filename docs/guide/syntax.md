@@ -356,3 +356,47 @@ math.sqrt(16)
 # 这是单行注释
 令 x = 1   # 行尾注释
 ```
+
+## 类型标注
+
+类型标注可选，不影响运行。`--strict` 模式下运行时检查类型。
+
+```
+# 变量类型标注
+let x: int   = 42
+let s: str   = "hello"
+let f: float = 3.14
+let b: bool  = true
+let l: list  = [1, 2, 3]
+let m: map   = {a: 1}
+
+# 中文类型名等价
+令 n: 整数   = 10
+令 t: 字符串 = "世界"
+
+# 函数参数和返回类型
+fn 加法(a: int, b: int) -> int:
+    return a + b
+
+fn 问候(名字: str) -> str:
+    return f"你好，{名字}"
+```
+
+启用严格类型检查：
+
+```bash
+pico --strict run hello.pico
+# 或
+PICO_STRICT=1 pico run hello.pico
+```
+
+支持的类型名：
+
+| 类型 | 中文 | 说明 |
+|------|------|------|
+| `int` | `整数` | 64 位整数 |
+| `float` | `浮点` | 64 位浮点 |
+| `str` | `字符串` | 字符串 |
+| `bool` | `布尔` | 布尔值 |
+| `list` | `列表` | 列表 |
+| `map` | `字典` | 字典 |
