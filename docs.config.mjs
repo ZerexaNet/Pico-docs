@@ -1,6 +1,6 @@
 export default {
-  siteName: "DocFlow 文档",
-  siteDescription: "DocFlow是由node开发的静态文档系统",
+  siteName: "Pico 语言文档",
+  siteDescription: "Pico — 伪代码风格的通用编程语言，用 C 实现",
   docsDir: "docs",
   outDir: "dist",
   base: process.env.DOCFLOW_BASE || "/",
@@ -8,31 +8,27 @@ export default {
     sticky: true,
     background: "solid",
     logo: {
-      text: "DocFlow 文档",
+      text: "Pico 文档",
       link: "/",
       image: "",
-      alt: "DocFlow 文档"
+      alt: "Pico"
     },
     rightButtons: [
       {
         text: "GitHub",
-        link: "https://github.com/ZerexaNet/DocFlow",
-        newTab: true
+        link: "https://github.com/ZerexaNet/Pico",
+        newTab: true,
+        style: "outline"
+      },
+      {
+        text: "下载",
+        link: "https://github.com/ZerexaNet/Pico/releases/latest",
+        newTab: true,
+        style: "filled"
       }
     ]
   },
   i18n: {
-    enabled: false,
-    endpoint: "/api/translate",
-    upstreamEndpoint: "https://deepl.io.hk.cn/translate",
-    sourceLang: "zh",
-    defaultLang: "zh",
-    altCount: 2,
-    cache: true,
-    autoApplySaved: true,
-    languages: [
-      { code: "zh", label: "简体中文" },
-      { code: "en", label: "English" }
-    ]
+    enabled: false
   }
 };

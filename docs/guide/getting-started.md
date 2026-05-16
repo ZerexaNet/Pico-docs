@@ -5,53 +5,68 @@ order: 2
 
 # 快速开始
 
-## 环境要求
+## 下载
 
-- Node.js 18+
-- npm 9+
+从 [GitHub Releases](https://github.com/ZerexaNet/Pico/releases/latest) 下载对应平台的二进制文件：
 
-## 安装依赖
+| 平台 | 文件名 |
+|------|--------|
+| Linux | `pico-linux-v*` |
+| Windows | `pico-windows-v*.exe` |
+| macOS | `pico-macos-v*` |
 
-```bash
-npm install
-```
-
-## 启动开发模式
-
-```bash
-npm run dev
-```
-
-默认端口是 `4173`，修改 `PORT` 环境变量即可自定义端口。
-
-## 构建静态站点
+Linux / macOS 需要添加执行权限：
 
 ```bash
-npm run build
+chmod +x pico-linux-v1.0.1
+./pico-linux-v1.0.1
 ```
 
-构建完成后输出到 `dist/` 目录。
+## 从源码编译
 
-## 目录说明
+需要 GCC 和 Make：
 
-```text
-docs/               # Markdown 文档源
-public/assets/      # 样式和前端脚本
-scripts/            # build/dev 入口
-src/                # 文档系统核心
-test/               # 测试
+```bash
+git clone https://github.com/ZerexaNet/Pico.git
+cd Pico
+make
+./pico
 ```
 
-## 新增一篇文档
+Windows 需要 MSYS2 UCRT64 环境：
 
-1. 在 `docs/` 下创建 `.md` 文件，例如 `docs/guide/new-page.md`
-2. 添加 Frontmatter：
-
-```md
----
-title: 新页面
-order: 10
----
+```bash
+make  # 自动链接 -lws2_32
 ```
 
-3. 写正文并保存，开发模式会自动重建
+## 运行 REPL
+
+```
+$ ./pico
+pico> 打印("你好，世界")
+你好，世界
+pico> 令 x = 1 + 2
+pico> x
+3
+pico> :quit
+```
+
+REPL 特殊命令：
+
+| 命令 | 说明 |
+|------|------|
+| `:quit` / `:退出` | 退出 |
+| `:type <表达式>` | 查看类型 |
+| `:env` | 查看当前所有变量 |
+
+## 运行脚本
+
+```bash
+./pico run hello.pico
+```
+
+## 编译为原生二进制
+
+```bash
+./pico build hello.pico   # 生成 ./hello
+```
