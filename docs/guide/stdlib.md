@@ -42,6 +42,9 @@ len(列表)     # 元素个数
 
 ### Mutex / 互斥锁
 
+> [!WARNING]
+> WASM 环境下 Mutex 为 stub，lock/unlock 无效果。
+
 ```
 令 锁 = Mutex()
 锁.lock()
@@ -49,6 +52,9 @@ len(列表)     # 元素个数
 ```
 
 ### Channel / 通道
+
+> [!WARNING]
+> WASM 环境下 Channel 为 stub，send/recv 无效果。
 
 ```
 令 ch = Channel(容量)   # 有缓冲通道
@@ -59,6 +65,9 @@ ch.send(值)
 ---
 
 ## net / 网络
+
+> [!WARNING]
+> WASM 环境下 `net.listen` 为 stub，无法启动 HTTP 服务器。
 
 ```
 net.listen(端口, 处理函数)
@@ -95,7 +104,8 @@ data.json([1, 2, 3])
 
 ## ui / 界面
 
-> 需要 Qt 环境（编译时加 `-DQT_AVAILABLE`）。无 Qt 时函数返回 stub 值，不报错。
+> [!WARNING]
+> Qt 绑定需编译时加 `-DQT_AVAILABLE` 并链接 Qt 库。未启用时所有 `ui.*` 调用返回 nil，不报错。WASM 构建中 Qt 完全不可用。
 
 ```
 令 窗口 = ui.window("标题", 宽, 高)   # 创建窗口
@@ -132,12 +142,15 @@ ui.运行()
 
 ## WASM / 浏览器运行
 
+> [!WARNING]
+> WASM 构建仅支持核心语言特性（运算、控制流、结构体、闭包、JSON）。线程、协程、网络（`net.listen`）、Qt GUI 均为 stub，调用无效果。
+
 编译为 WebAssembly：
 
 ```bash
 emcc -std=c11 -O2 -Isrc \
   src/ast.c src/error.c src/gc.c src/interpreter.c src/lexer.c \
-  src/parser.c src/value.c src/wasm_entry.c src/stdlib/json.c \
+  src/parser.c src/value.c src/wasm_entry.c src/wasm_stubs.c src/stdlib/json.c \
   -s WASM=1 \
   -s EXPORTED_FUNCTIONS='["_pico_wasm_run","_malloc","_free"]' \
   -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' \
