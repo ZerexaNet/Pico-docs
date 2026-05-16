@@ -5,113 +5,119 @@ order: 4
 
 # 标准库
 
-所有模块通过 `import` / `导入` 加载，内置函数无需导入直接使用。
+## 内置函数（无需导入）
 
-## 内置函数
-
-| 函数 | 中文别名 | 说明 |
-|------|----------|------|
-| `print(...)` | `打印(...)` | 打印，不换行 |
-| `println(...)` | `打印行(...)` | 打印并换行 |
-| `input(提示)` | `输入(提示)` | 读取一行输入 |
-| `len(x)` | `长度(x)` | 字符串或列表长度 |
-| `range(n)` | — | 生成 0..n-1 的列表 |
-| `range(a, b)` | — | 生成 a..b-1 的列表 |
-
-## str — 字符串
+### print / 打印
 
 ```
-导入 str
-
-str.upper("hello")        # "HELLO"
-str.lower("HELLO")        # "hello"
-str.trim("  hi  ")        # "hi"
-str.split("a,b,c", ",")   # ["a", "b", "c"]
-str.join(["a","b"], "-")  # "a-b"
-str.contains("hello", "ell")  # true
-str.replace("hello", "l", "r")  # "herro"
+print(值1, 值2, ...)
+打印(值1, 值2, ...)
 ```
 
-## list — 列表
+打印所有参数，空格分隔，末尾换行。
 
 ```
-导入 list
-
-令 l = [3, 1, 2]
-list.push(l, 4)           # [3, 1, 2, 4]
-list.pop(l)               # 移除并返回最后一个
-list.sort(l)              # 原地排序
-list.map(l, fn(x): return x * 2)
-list.filter(l, fn(x): return x > 1)
-list.reduce(l, fn(acc, x): return acc + x, 0)
+打印("hello", "world")   # hello world
+打印(1, 2, 3)            # 1 2 3
 ```
 
-## map — 字典
+### range
 
 ```
-导入 map
-
-令 m = {name: "pico", version: 1}
-map.keys(m)               # ["name", "version"]
-map.values(m)             # ["pico", 1]
-map.has(m, "name")        # true
-map.delete(m, "version")
+range(n)         # 生成 [0, 1, ..., n-1]
+range(start, end) # 生成 [start, ..., end-1]
 ```
 
-## math — 数学
-
 ```
-导入 math
-
-math.abs(-5)      # 5
-math.sqrt(16)     # 4.0
-math.pow(2, 10)   # 1024
-math.floor(3.7)   # 3
-math.ceil(3.2)    # 4
-math.min(1, 2)    # 1
-math.max(1, 2)    # 2
-math.rand()       # 0.0 ~ 1.0 随机数
-math.pi           # 3.14159...
+range(5)         # [0, 1, 2, 3, 4]
+range(2, 6)      # [2, 3, 4, 5]
 ```
 
-## file — 文件
+### len / 长度
 
 ```
-导入 file
-
-令 f = file.open("data.txt", "r")
-令 内容 = file.read(f)
-令 行列表 = file.readlines(f)
-file.close(f)
-
-令 f = file.open("out.txt", "w")
-file.write(f, "hello\n")
-file.close(f)
-
-file.exists("data.txt")   # true / false
+len(字符串)   # 字节长度
+len(列表)     # 元素个数
 ```
 
-## 网络 — HTTP
+### Mutex / 互斥锁
 
 ```
-导入 网络
+令 锁 = Mutex()
+锁.lock()
+锁.unlock()
+```
 
-# HTTP 客户端
-令 响应 = 网络.获取("https://api.example.com/data")
+### Channel / 通道
 
-# HTTP 服务器
-令 应用 = 网络.应用()
-应用.获取("/", fn(请求, 响应):
-    响应.发送("hello world")
+```
+令 ch = Channel(容量)   # 有缓冲通道
+ch.send(值)
+令 v = ch.recv()        # 阻塞直到有值
+```
+
+---
+
+## net / 网络
+
+```
+net.listen(端口, 处理函数)
+网络.监听(端口, 处理函数)
+```
+
+启动 HTTP/1.1 服务器，阻塞运行：
+
+```
+net.listen(8080, fn(请求, 响应):
+    响应.发送("hello")
 )
-应用.监听(8080)
 ```
 
-## json
+---
+
+## data / 数据
+
+### data.json / 数据.json
+
+序列化为 JSON 字符串：
 
 ```
-导入 json
-
-令 文本 = json.stringify({name: "pico", ok: true})
+data.json({name: "pico", ok: true})
 # '{"name":"pico","ok":true}'
+
+data.json([1, 2, 3])
+# '[1,2,3]'
+```
+
+支持：nil → `null`，bool，int，float，string，list，map。
+
+---
+
+## ui / 界面
+
+> 仅 Windows（Qt）平台可用，其他平台返回 nil。
+
+```
+令 窗口 = ui.window(标题, 宽, 高)
+令 按钮 = ui.button(文字)
+```
+
+---
+
+## REPL 命令
+
+在交互式 REPL 中可用：
+
+| 命令 | 说明 |
+|------|------|
+| `:quit` / `:exit` / `:退出` | 退出 REPL |
+
+---
+
+## CLI 用法
+
+```bash
+pico                    # 启动 REPL
+pico run <文件.pico>    # 运行脚本
+pico build <文件.pico>  # 编译为原生二进制（开发中）
 ```
