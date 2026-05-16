@@ -95,18 +95,92 @@ data.json([1, 2, 3])
 
 ## ui / 界面
 
-> 仅 Windows（Qt）平台可用，其他平台返回 nil。
+> 需要 Qt 环境（编译时加 `-DQT_AVAILABLE`）。无 Qt 时函数返回 stub 值，不报错。
 
 ```
-令 窗口 = ui.window(标题, 宽, 高)
-令 按钮 = ui.button(文字)
+令 窗口 = ui.window("标题", 宽, 高)   # 创建窗口
+令 按钮 = ui.button("文字")           # 创建按钮
+令 标签 = ui.label("文字")            # 创建标签
+令 输入 = ui.input("占位符")          # 创建输入框
+
+ui.add(窗口, 按钮)                    # 向窗口添加控件
+ui.show(窗口)                         # 显示窗口
+ui.on_click(按钮, fn(): 打印("点击")) # 绑定点击事件
+ui.exec()                             # 启动事件循环（阻塞）
+```
+
+中文别名：`ui.窗口` `ui.按钮` `ui.标签` `ui.输入框` `ui.添加` `ui.显示` `ui.点击时` `ui.运行`
+
+完整示例：
+
+```
+令 窗口 = ui.窗口("Pico App", 400, 300)
+令 按钮 = ui.按钮("点击我")
+令 标签 = ui.标签("等待点击...")
+
+ui.点击时(按钮, fn():
+    打印("按钮被点击")
+)
+
+ui.添加(窗口, 标签)
+ui.添加(窗口, 按钮)
+ui.显示(窗口)
+ui.运行()
 ```
 
 ---
 
-## REPL 命令
+## WASM / 浏览器运行
 
-在交互式 REPL 中可用：
+编译为 WebAssembly：
+
+```bash
+emcc -std=c11 -O2 -Isrc \
+  src/ast.c src/error.c src/gc.c src/interpreter.c src/lexer.c \
+  src/parser.c src/value.c src/wasm_entry.c src/stdlib/json.c \
+  -s WASM=1 \
+  -s EXPORTED_FUNCTIONS='["_pico_wasm_run","_malloc","_free"]' \
+  -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' \
+  -o pico.js
+```
+
+在浏览器中调用：
+
+```html
+<script src="pico.js"></script>
+<script>
+Module.onRuntimeInitialized = () => {
+  const run = Module.cwrap('pico_wasm_run', 'string', ['string']);
+  const output = run('打印("hello from wasm")');
+  console.log(output);
+};
+</script>
+```
+
+也可直接从 [Releases](https://github.com/ZerexaNet/Pico/releases/latest) 下载预编译的 `pico-v*.js` + `pico-v*.wasm`。
+
+---
+
+## 字节码 VM
+
+Pico 内置字节码编译器和虚拟机，支持 30+ 指令：
+
+| 指令类别 | 指令 |
+|----------|------|
+| 字面量 | `OP_CONST` `OP_NIL` `OP_TRUE` `OP_FALSE` |
+| 变量 | `OP_GET_LOCAL` `OP_SET_LOCAL` `OP_GET_GLOBAL` `OP_SET_GLOBAL` |
+| 算术 | `OP_ADD` `OP_SUB` `OP_MUL` `OP_DIV` `OP_MOD` `OP_NEG` |
+| 比较 | `OP_EQ` `OP_NEQ` `OP_LT` `OP_LE` `OP_GT` `OP_GE` |
+| 逻辑 | `OP_AND` `OP_OR` `OP_NOT` |
+| 控制流 | `OP_JUMP` `OP_JUMP_IF_FALSE` `OP_LOOP` |
+| 集合 | `OP_MAKE_LIST` `OP_MAKE_MAP` `OP_INDEX` `OP_GET_FIELD` `OP_SET_FIELD` |
+| 函数 | `OP_CALL` `OP_RETURN` `OP_MAKE_FN` |
+
+VM 与树遍历解释器并存，当前默认使用解释器。
+
+---
+
+## REPL 命令
 
 | 命令 | 说明 |
 |------|------|
