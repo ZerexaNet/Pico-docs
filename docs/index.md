@@ -33,4 +33,5 @@ for i in range(10):
 - [快速开始](/guide/getting-started/) — 安装与运行
 - [语法参考](/guide/syntax/) — 完整语法说明
 - [标准库](/guide/stdlib/) — 内置模块文档
+- [SDK](/guide/sdk/) — C 嵌入 SDK 与扩展 SDK
 - [示例](/guide/examples/) — 实用代码示例
